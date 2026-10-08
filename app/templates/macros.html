@@ -1,0 +1,35 @@
+{% macro score_badge(m) %}
+  {% if m %}
+  <span class="badge rounded-pill bg-{{ 'success' if m.score >= 70 else ('warning text-dark' if m.score >= 40 else 'secondary') }}">{{ m.score }}% match</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro status_badge(status) %}
+  <span class="badge bg-{{ STATUS_COLORS.get(status, 'secondary') }}">{{ status }}</span>
+{% endmacro %}
+
+{% macro skill_badges(skills, limit=0) %}
+  {% for s in (skills[:limit] if limit else skills) %}<span class="badge text-bg-light border me-1 mb-1">{{ s.name if s.name is defined else s }}</span>{% endfor %}
+{% endmacro %}
+
+{% macro job_card(job, m=None) %}
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100 shadow-sm job-card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <h5 class="card-title mb-1"><a class="stretched-link text-decoration-none" href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a></h5>
+        {{ score_badge(m) }}
+      </div>
+      <div class="text-muted small mb-2"><i class="bi bi-building"></i> {{ job.company.name }} &middot; <i class="bi bi-geo-alt"></i> {{ job.location or 'Anywhere' }}</div>
+      <span class="badge text-bg-primary">{{ job.job_type }}</span>
+      {% if job.category %}<span class="badge text-bg-secondary">{{ job.category.name }}</span>{% endif %}
+      <p class="small text-muted mt-2 mb-2">{{ job.description|truncate(100) }}</p>
+      {{ skill_badges(job.skills, 4) }}
+    </div>
+    <div class="card-footer bg-white small text-muted d-flex justify-content-between">
+      <span>{{ job.salary or 'Salary not stated' }}</span>
+      <span>{% if job.deadline %}Apply by {{ job.deadline.strftime('%d %b') }}{% else %}Open{% endif %}</span>
+    </div>
+  </div>
+</div>
+{% endmacro %}

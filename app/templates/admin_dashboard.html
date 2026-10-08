@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container my-4"><h3 class="mb-3">Admin dashboard</h3>
+  <div class="row g-3 text-center">
+    {% for label, key in [('Users','users'),('Job seekers','seekers'),('Employers','employers'),('Suspended','suspended'),('Jobs','jobs'),('Open jobs','open_jobs'),('Applications','applications'),('Interviews','interviews')] %}
+    <div class="col-6 col-md-3"><div class="card shadow-sm p-3"><div class="display-6 text-primary">{{ stats[key] }}</div>{{ label }}</div></div>{% endfor %}
+  </div>
+  <div class="row g-4 mt-1">
+    <div class="col-md-5"><div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Applications by status</div>
+      <ul class="list-group list-group-flush">{% for s, n in by_status.items() %}<li class="list-group-item d-flex justify-content-between">{{ s }}<span class="badge text-bg-{{ STATUS_COLORS[s] }}">{{ n }}</span></li>{% endfor %}</ul></div></div>
+    <div class="col-md-7"><div class="card shadow-sm"><div class="card-header bg-white fw-semibold d-flex justify-content-between">Newest users <a href="{{ url_for('admin_users') }}">Manage</a></div>
+      <ul class="list-group list-group-flush">{% for u in recent %}<li class="list-group-item d-flex justify-content-between">{{ u.name }} <small class="text-muted">{{ u.email }}</small><span class="badge text-bg-secondary">{{ u.role }}</span></li>{% endfor %}</ul></div></div>
+  </div>
+</div>
+{% endblock %}

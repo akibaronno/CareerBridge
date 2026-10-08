@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% block title %}Register{% endblock %}
+{% block content %}
+<div class="container" style="max-width:520px"><div class="card shadow-sm mt-4"><div class="card-body p-4">
+  <h3 class="mb-3">Create your account</h3>
+  <form method="post">
+    <div class="mb-3"><label class="form-label">I am a</label>
+      <div class="btn-group w-100" role="group">
+        <input type="radio" class="btn-check" name="role" id="r1" value="seeker" checked onchange="toggleCo()">
+        <label class="btn btn-outline-primary" for="r1">Job Seeker</label>
+        <input type="radio" class="btn-check" name="role" id="r2" value="employer" onchange="toggleCo()">
+        <label class="btn btn-outline-primary" for="r2">Employer</label>
+      </div></div>
+    <div class="mb-3"><label class="form-label">Full name</label><input name="name" class="form-control" required></div>
+    <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
+    <div class="mb-3"><label class="form-label">Password (min 6 characters)</label><input type="password" name="password" class="form-control" minlength="6" required></div>
+    <div class="mb-3 d-none" id="co"><label class="form-label">Company name</label><input name="company_name" class="form-control"></div>
+    <button class="btn btn-primary w-100">Register</button>
+  </form>
+  <p class="text-center mt-3 mb-0">Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+</div></div></div>
+<script>function toggleCo(){document.getElementById('co').classList.toggle('d-none',!document.getElementById('r2').checked);}</script>
+{% endblock %}

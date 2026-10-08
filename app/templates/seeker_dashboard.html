@@ -1,0 +1,36 @@
+{% extends 'base.html' %}{% from 'macros.html' import job_card, status_badge %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <h3>Welcome back, {{ current_user.name }}</h3>
+  {% if not seeker.skills %}<div class="alert alert-info">Add your skills in <a href="{{ url_for('profile') }}">your profile</a> to unlock job recommendations and match scores.</div>{% endif %}
+  <div class="row g-3 my-2 text-center">
+    <div class="col-6 col-md-3"><div class="card shadow-sm p-3"><div class="display-6">{{ total }}</div>Applications</div></div>
+    <div class="col-6 col-md-3"><div class="card shadow-sm p-3"><div class="display-6">{{ counts['Shortlisted'] }}</div>Shortlisted</div></div>
+    <div class="col-6 col-md-3"><div class="card shadow-sm p-3"><div class="display-6">{{ counts['Interview'] }}</div>Interviews</div></div>
+    <div class="col-6 col-md-3"><div class="card shadow-sm p-3"><div class="display-6">{{ seeker.skills|length }}</div>Skills</div></div>
+  </div>
+  <div class="row g-4 mt-1">
+    <div class="col-lg-7">
+      <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Recent applications</div>
+        <ul class="list-group list-group-flush">
+          {% for a in apps %}<li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><a href="{{ url_for('job_detail', job_id=a.job_id) }}">{{ a.job.title }}</a><br><small class="text-muted">{{ a.job.company.name }}</small></span>{{ status_badge(a.status) }}</li>
+          {% else %}<li class="list-group-item text-muted">You haven't applied yet.</li>{% endfor %}
+        </ul></div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Upcoming interviews</div>
+        <ul class="list-group list-group-flush">
+          {% for i in upcoming %}<li class="list-group-item"><strong>{{ i.application.job.title }}</strong><br>
+            <small>{{ i.scheduled_at.strftime('%d %b %Y, %H:%M') }} &middot; {{ i.interview_type }}</small></li>
+          {% else %}<li class="list-group-item text-muted">No upcoming interviews.</li>{% endfor %}
+        </ul></div>
+    </div>
+  </div>
+  <h4 class="mt-4">Recommended for you</h4>
+  <div class="row g-3">
+    {% for job, m in recs %}{{ job_card(job, m) }}{% else %}<p class="text-muted">No recommendations yet &mdash; add skills to your profile.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

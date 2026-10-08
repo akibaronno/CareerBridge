@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% from 'macros.html' import status_badge, score_badge %}
+{% block title %}My Applications{% endblock %}
+{% block content %}
+<div class="container my-4"><h3 class="mb-3">My applications</h3>
+<div class="card shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0">
+  <thead class="table-light"><tr><th>Job</th><th>Company</th><th>Match</th><th>Applied</th><th>Status</th><th>Interview</th></tr></thead>
+  <tbody>
+  {% for a in apps %}<tr>
+    <td><a href="{{ url_for('job_detail', job_id=a.job_id) }}">{{ a.job.title }}</a></td>
+    <td>{{ a.job.company.name }}</td>
+    <td>{{ score_badge({'score': a.match_score}) }}</td>
+    <td>{{ a.applied_at.strftime('%d %b %Y') }}</td>
+    <td>{{ status_badge(a.status) }}</td>
+    <td>{% if a.interview %}{{ a.interview.scheduled_at.strftime('%d %b, %H:%M') }}{% else %}&mdash;{% endif %}</td>
+  </tr>{% else %}<tr><td colspan="6" class="text-center text-muted py-4">No applications yet. <a href="{{ url_for('jobs') }}">Browse jobs</a></td></tr>{% endfor %}
+  </tbody></table></div></div></div>
+{% endblock %}

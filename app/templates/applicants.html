@@ -1,0 +1,25 @@
+{% extends 'base.html' %}{% from 'macros.html' import status_badge, score_badge %}
+{% block title %}Applicants{% endblock %}
+{% block content %}
+<div class="container my-4"><h3 class="mb-3">Applicant management</h3>
+  <form class="row g-2 bg-white p-3 rounded shadow-sm mb-3">
+    <div class="col-md-4"><select name="job_id" class="form-select"><option value="">All jobs</option>
+      {% for j in jobs %}<option value="{{ j.id }}" {{ 'selected' if job_id == j.id }}>{{ j.title }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><select name="status" class="form-select"><option value="">All statuses</option>
+      {% for s in STATUSES %}<option {{ 'selected' if status == s }}>{{ s }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><select name="sort" class="form-select">
+      <option value="score" {{ 'selected' if sort == 'score' }}>Best match first</option><option value="date" {{ 'selected' if sort == 'date' }}>Newest first</option></select></div>
+    <div class="col-md-2 d-grid"><button class="btn btn-primary">Filter</button></div>
+  </form>
+  <div class="card shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0">
+    <thead class="table-light"><tr><th>Candidate</th><th>Job</th><th>Match</th><th>Applied</th><th>Status</th><th>Change status</th></tr></thead><tbody>
+    {% for a in apps %}<tr>
+      <td><a href="{{ url_for('applicant_detail', app_id=a.id) }}">{{ a.jobseeker.user.name }}</a><br><small class="text-muted">{{ a.jobseeker.headline or '' }}</small></td>
+      <td>{{ a.job.title }}</td><td>{{ score_badge({'score': a.match_score}) }}</td>
+      <td>{{ a.applied_at.strftime('%d %b %Y') }}</td><td>{{ status_badge(a.status) }}</td>
+      <td><form method="post" action="{{ url_for('application_status', app_id=a.id) }}" class="d-flex gap-1">
+        <select name="status" class="form-select form-select-sm">{% for s in STATUSES %}<option {{ 'selected' if a.status == s }}>{{ s }}</option>{% endfor %}</select>
+        <button class="btn btn-sm btn-outline-primary">Set</button></form></td>
+    </tr>{% else %}<tr><td colspan="6" class="text-center text-muted py-4">No applicants found.</td></tr>{% endfor %}
+  </tbody></table></div></div></div>
+{% endblock %}

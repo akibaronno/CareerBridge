@@ -1,0 +1,54 @@
+{% extends 'base.html' %}{% from 'macros.html' import status_badge, skill_badges %}
+{% block title %}{{ a.jobseeker.user.name }}{% endblock %}
+{% block content %}
+<div class="container my-4"><a href="{{ url_for('applicants', job_id=a.job_id) }}">&larr; Back to applicants</a>
+<div class="row g-4 mt-1">
+  <div class="col-lg-7">
+    <div class="card shadow-sm mb-3"><div class="card-body p-4">
+      <h4>{{ a.jobseeker.user.name }} <small>{{ status_badge(a.status) }}</small></h4>
+      <p class="text-muted mb-2">{{ a.jobseeker.headline or '' }}</p>
+      <ul class="list-unstyled small">
+        <li><i class="bi bi-envelope"></i> {{ a.jobseeker.user.email }}</li>
+        {% if a.jobseeker.phone %}<li><i class="bi bi-telephone"></i> {{ a.jobseeker.phone }}</li>{% endif %}
+        {% if a.jobseeker.location %}<li><i class="bi bi-geo-alt"></i> {{ a.jobseeker.location }}</li>{% endif %}
+        <li><i class="bi bi-mortarboard"></i> {{ a.jobseeker.education or 'Education not stated' }}</li>
+        <li><i class="bi bi-clock-history"></i> {{ a.jobseeker.experience_years or 0 }} year(s) experience</li>
+      </ul>
+      {% if a.jobseeker.bio %}<h6>About</h6><p style="white-space:pre-line">{{ a.jobseeker.bio }}</p>{% endif %}
+      <h6>Skills</h6>{{ skill_badges(a.jobseeker.skills) }}
+      <h6 class="mt-3">Cover letter</h6><p style="white-space:pre-line" class="mb-3">{{ a.cover_letter or 'No cover letter provided.' }}</p>
+      {% if a.cv %}<a class="btn btn-outline-primary" href="{{ url_for('cv_download', cv_id=a.cv.id) }}"><i class="bi bi-download"></i> Download CV ({{ a.cv.original_name }})</a>
+      {% else %}<span class="text-muted">CV no longer available.</span>{% endif %}
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h5>Match for {{ a.job.title }}</h5>
+      <div class="progress mb-2" style="height:22px"><div class="progress-bar bg-{{ 'success' if match.score >= 70 else ('warning' if match.score >= 40 else 'secondary') }}" style="width:{{ match.score }}%">{{ match.score }}%</div></div>
+      <div class="small fw-semibold text-success">Matched skills</div>
+      {% for s in match.matched %}<span class="badge text-bg-success me-1">{{ s }}</span>{% else %}<span class="small text-muted">None</span>{% endfor %}
+      <div class="small fw-semibold text-danger mt-2">Missing skills</div>
+      {% for s in match.missing %}<span class="badge text-bg-danger me-1">{{ s }}</span>{% else %}<span class="small text-muted">None</span>{% endfor %}
+    </div></div>
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h5>Update status</h5>
+      <form method="post" action="{{ url_for('application_status', app_id=a.id) }}" class="d-flex gap-2 mb-2">
+        <select name="status" class="form-select">{% for s in STATUSES %}<option {{ 'selected' if a.status == s }}>{{ s }}</option>{% endfor %}</select>
+        <button class="btn btn-primary">Save</button></form>
+      <form method="post" action="{{ url_for('application_status', app_id=a.id) }}" class="d-inline"><input type="hidden" name="status" value="Shortlisted"><button class="btn btn-sm btn-outline-primary">Shortlist</button></form>
+      <form method="post" action="{{ url_for('application_status', app_id=a.id) }}" class="d-inline"><input type="hidden" name="status" value="Rejected"><button class="btn btn-sm btn-outline-danger">Reject</button></form>
+    </div></div>
+    <div class="card shadow-sm"><div class="card-body">
+      <h5>{{ 'Reschedule interview' if a.interview else 'Schedule interview' }}</h5>
+      <form method="post" action="{{ url_for('schedule_interview', app_id=a.id) }}"><div class="row g-2">
+        <div class="col-6"><input type="date" name="date" class="form-control" value="{{ a.interview.scheduled_at.strftime('%Y-%m-%d') if a.interview }}" required></div>
+        <div class="col-6"><input type="time" name="time" class="form-control" value="{{ a.interview.scheduled_at.strftime('%H:%M') if a.interview }}" required></div>
+        <div class="col-12"><select name="interview_type" class="form-select">{% for t in INTERVIEW_TYPES %}<option {{ 'selected' if a.interview and a.interview.interview_type == t }}>{{ t }}</option>{% endfor %}</select></div>
+        <div class="col-12"><input name="location_link" class="form-control" placeholder="Meeting link or address" value="{{ a.interview.location_link if a.interview else '' }}"></div>
+        <div class="col-12"><textarea name="notes" rows="2" class="form-control" placeholder="Notes for the candidate">{{ a.interview.notes if a.interview else '' }}</textarea></div>
+        <div class="col-12 d-grid"><button class="btn btn-success">Save interview</button></div>
+      </div></form>
+    </div></div>
+  </div>
+</div></div>
+{% endblock %}

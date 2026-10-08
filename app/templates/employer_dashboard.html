@@ -1,0 +1,37 @@
+{% extends 'base.html' %}{% from 'macros.html' import status_badge, score_badge %}
+{% block title %}Employer Dashboard{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3"><h3>{{ company.name }}</h3>
+    <a class="btn btn-primary" href="{{ url_for('job_new') }}"><i class="bi bi-plus-lg"></i> Post a job</a></div>
+  {% if not company.description %}<div class="alert alert-info">Complete your <a href="{{ url_for('company_profile') }}">company profile</a> so candidates know who you are.</div>{% endif %}
+  <div class="row g-3 text-center mb-4">
+    <div class="col-6 col-md"><div class="card shadow-sm p-3"><div class="display-6">{{ stats.jobs }}</div>Jobs</div></div>
+    <div class="col-6 col-md"><div class="card shadow-sm p-3"><div class="display-6">{{ stats.apps }}</div>Applicants</div></div>
+    <div class="col-6 col-md"><div class="card shadow-sm p-3"><div class="display-6">{{ stats.new }}</div>New</div></div>
+    <div class="col-6 col-md"><div class="card shadow-sm p-3"><div class="display-6">{{ stats.shortlisted }}</div>Shortlisted</div></div>
+    <div class="col-12 col-md"><div class="card shadow-sm p-3"><div class="display-6">{{ stats.interviews }}</div>Interviews</div></div>
+  </div>
+  <div class="card shadow-sm mb-4"><div class="card-header bg-white fw-semibold">My posted jobs</div>
+    <div class="table-responsive"><table class="table align-middle mb-0">
+      <thead class="table-light"><tr><th>Title</th><th>Deadline</th><th>Status</th><th>Applicants</th><th class="text-end">Actions</th></tr></thead><tbody>
+      {% for j in jobs %}<tr>
+        <td><a href="{{ url_for('job_detail', job_id=j.id) }}">{{ j.title }}</a></td>
+        <td>{{ j.deadline.strftime('%d %b %Y') if j.deadline else '—' }}</td>
+        <td>{% if j.is_open %}<span class="badge text-bg-success">Open</span>{% else %}<span class="badge text-bg-secondary">Closed</span>{% endif %}</td>
+        <td><a href="{{ url_for('applicants', job_id=j.id) }}">{{ j.applications|length }}</a></td>
+        <td class="text-end text-nowrap">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('job_edit', job_id=j.id) }}">Edit</a>
+          <form class="d-inline" method="post" action="{{ url_for('job_delete', job_id=j.id) }}" onsubmit="return confirm('Delete this job and all its applications?')"><button class="btn btn-sm btn-outline-danger">Delete</button></form>
+        </td></tr>
+      {% else %}<tr><td colspan="5" class="text-center text-muted py-4">No jobs posted yet.</td></tr>{% endfor %}
+    </tbody></table></div></div>
+  <div class="card shadow-sm"><div class="card-header bg-white fw-semibold d-flex justify-content-between">Recent applicants <a href="{{ url_for('applicants') }}">View all</a></div>
+    <ul class="list-group list-group-flush">
+      {% for a in recent %}<li class="list-group-item d-flex justify-content-between align-items-center">
+        <span><a href="{{ url_for('applicant_detail', app_id=a.id) }}">{{ a.jobseeker.user.name }}</a> <small class="text-muted">&rarr; {{ a.job.title }}</small></span>
+        <span>{{ score_badge({'score': a.match_score}) }} {{ status_badge(a.status) }}</span></li>
+      {% else %}<li class="list-group-item text-muted">No applications yet.</li>{% endfor %}
+    </ul></div>
+</div>
+{% endblock %}

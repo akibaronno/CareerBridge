@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block title %}Company Profile{% endblock %}
+{% block content %}
+<div class="container my-4" style="max-width:760px"><div class="card shadow-sm"><div class="card-body p-4">
+  <h4 class="mb-3">Company profile</h4>
+  <form method="post"><div class="row g-3">
+    <div class="col-md-6"><label class="form-label">Company name</label><input name="name" class="form-control" value="{{ company.name }}" required></div>
+    <div class="col-md-6"><label class="form-label">Industry</label><input name="industry" class="form-control" value="{{ company.industry or '' }}"></div>
+    <div class="col-md-6"><label class="form-label">Location</label><input name="location" class="form-control" value="{{ company.location or '' }}"></div>
+    <div class="col-md-6"><label class="form-label">Website</label><input name="website" class="form-control" value="{{ company.website or '' }}"></div>
+    <div class="col-12"><label class="form-label">About the company</label><textarea name="description" rows="4" class="form-control">{{ company.description or '' }}</textarea></div>
+    <div class="col-md-6"><label class="form-label">Your position</label><input name="position" class="form-control" value="{{ employer.position or '' }}"></div>
+    <div class="col-md-6"><label class="form-label">Contact phone</label><input name="phone" class="form-control" value="{{ employer.phone or '' }}"></div>
+  </div><button class="btn btn-primary mt-3">Save</button></form>
+</div></div></div>
+{% endblock %}

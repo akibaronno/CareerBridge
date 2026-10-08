@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block title %}Interviews{% endblock %}
+{% block content %}
+<div class="container my-4"><h3 class="mb-3">Interviews</h3>
+<div class="row g-3">
+  {% for i in items %}<div class="col-md-6"><div class="card shadow-sm {{ 'opacity-75' if i.scheduled_at < now }}"><div class="card-body">
+    <div class="d-flex justify-content-between"><h5>{{ i.application.job.title }}</h5>
+      <span class="badge text-bg-{{ 'secondary' if i.scheduled_at < now else 'warning' }}">{{ 'Past' if i.scheduled_at < now else 'Upcoming' }}</span></div>
+    <p class="mb-1 text-muted">{% if current_user.role == 'employer' %}Candidate: <strong>{{ i.application.jobseeker.user.name }}</strong>{% else %}{{ i.application.job.company.name }}{% endif %}</p>
+    <p class="mb-1"><i class="bi bi-calendar-event"></i> {{ i.scheduled_at.strftime('%A, %d %b %Y at %H:%M') }}</p>
+    <p class="mb-1"><i class="bi bi-camera-video"></i> {{ i.interview_type }}: {{ i.location_link or 'TBA' }}</p>
+    {% if i.notes %}<p class="small text-muted mb-0">{{ i.notes }}</p>{% endif %}
+  </div></div></div>
+  {% else %}<p class="text-muted">No interviews scheduled.</p>{% endfor %}
+</div></div>
+{% endblock %}

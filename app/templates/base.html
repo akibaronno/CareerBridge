@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Home{% endblock %} | CareerBridge</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background:#f5f7fb; }
+    .hero { background:linear-gradient(135deg,#0d6efd,#6610f2); color:#fff; }
+    .job-card { transition:transform .15s, box-shadow .15s; }
+    .job-card:hover { transform:translateY(-3px); box-shadow:0 .5rem 1rem rgba(0,0,0,.12)!important; }
+    .stat-card .display-6 { font-weight:700; }
+    footer { font-size:.9rem; }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{{ url_for('home') }}"><i class="bi bi-briefcase-fill text-primary"></i> CareerBridge</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('jobs') }}">Jobs</a></li>
+        {% if current_user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+          {% if current_user.role == 'seeker' %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('my_applications') }}">My Applications</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('interviews') }}">Interviews</a></li>
+          {% elif current_user.role == 'employer' %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('job_new') }}">Post Job</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('applicants') }}">Applicants</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('interviews') }}">Interviews</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_users') }}">Users</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_jobs') }}">Jobs</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_taxonomy') }}">Skills &amp; Categories</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav align-items-lg-center">
+        {% if current_user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link position-relative" href="{{ url_for('notifications') }}"><i class="bi bi-bell-fill"></i>
+            {% if unread_count %}<span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">{{ unread_count }}</span>{% endif %}</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"><i class="bi bi-person-circle"></i> {{ current_user.name }}</a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% if current_user.role == 'seeker' %}<li><a class="dropdown-item" href="{{ url_for('profile') }}">My Profile</a></li>{% endif %}
+              {% if current_user.role == 'employer' %}<li><a class="dropdown-item" href="{{ url_for('company_profile') }}">Company Profile</a></li>{% endif %}
+              <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+          <li class="nav-item"><a class="btn btn-primary btn-sm ms-lg-2" href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="flex-grow-1">
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show" role="alert">{{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="bg-dark text-light py-3 mt-5 text-center">
+  &copy; {{ today.year }} CareerBridge &middot; Job Recruitment &amp; Career Portal
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

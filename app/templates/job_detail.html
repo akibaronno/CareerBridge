@@ -1,0 +1,68 @@
+{% extends 'base.html' %}{% from 'macros.html' import score_badge, status_badge, skill_badges %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block content %}
+<div class="container my-4"><div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h2>{{ job.title }}</h2>
+      <p class="text-muted"><i class="bi bi-building"></i> {{ job.company.name }} &middot; <i class="bi bi-geo-alt"></i> {{ job.location or 'Anywhere' }}</p>
+      <div class="mb-3">
+        <span class="badge text-bg-primary">{{ job.job_type }}</span>
+        {% if job.category %}<span class="badge text-bg-secondary">{{ job.category.name }}</span>{% endif %}
+        {% if not job.is_open %}<span class="badge text-bg-danger">Closed</span>{% endif %}
+      </div>
+      <h5>Description</h5><p style="white-space:pre-line">{{ job.description }}</p>
+      {% if job.requirements %}<h5>Requirements</h5><p style="white-space:pre-line">{{ job.requirements }}</p>{% endif %}
+      <h5>Required skills</h5>{{ skill_badges(job.skills) }}
+    </div></div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <ul class="list-unstyled mb-0">
+        <li class="mb-1"><strong>Salary:</strong> {{ job.salary or 'Not stated' }}</li>
+        <li class="mb-1"><strong>Experience:</strong> {{ job.experience_required or 0 }}+ years</li>
+        <li class="mb-1"><strong>Deadline:</strong> {{ job.deadline.strftime('%d %b %Y') if job.deadline else 'Open' }}</li>
+        <li><strong>Posted:</strong> {{ job.created_at.strftime('%d %b %Y') }}</li>
+      </ul>
+    </div></div>
+
+    {% if match %}
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h5>Your match score</h5>
+      <div class="progress mb-2" style="height:22px"><div class="progress-bar bg-{{ 'success' if match.score >= 70 else ('warning' if match.score >= 40 else 'secondary') }}" style="width:{{ match.score }}%">{{ match.score }}%</div></div>
+      <div class="small fw-semibold text-success">Matched skills</div>
+      {% for s in match.matched %}<span class="badge text-bg-success me-1">{{ s }}</span>{% else %}<span class="small text-muted">None yet</span>{% endfor %}
+      <div class="small fw-semibold text-danger mt-2">Missing skills</div>
+      {% for s in match.missing %}<span class="badge text-bg-danger me-1">{{ s }}</span>{% else %}<span class="small text-muted">None &mdash; great!</span>{% endfor %}
+    </div></div>
+    {% endif %}
+
+    <div class="card shadow-sm"><div class="card-body">
+      {% if not current_user.is_authenticated %}
+        <a class="btn btn-primary w-100" href="{{ url_for('login', next=request.path) }}">Login to apply</a>
+      {% elif current_user.role == 'seeker' %}
+        {% if applied %}
+          <div class="alert alert-success mb-0">You applied on {{ applied.applied_at.strftime('%d %b %Y') }}.<br>Status: {{ status_badge(applied.status) }}</div>
+        {% elif not job.is_open %}
+          <div class="alert alert-secondary mb-0">Applications are closed.</div>
+        {% elif not seeker.cvs %}
+          <div class="alert alert-warning mb-0">Upload a CV in <a href="{{ url_for('profile') }}">your profile</a> before applying.</div>
+        {% else %}
+          <h5>Apply now</h5>
+          <form method="post" action="{{ url_for('apply', job_id=job.id) }}">
+            <div class="mb-2"><label class="form-label">Select CV</label>
+              <select name="cv_id" class="form-select">{% for cv in seeker.cvs %}<option value="{{ cv.id }}">{{ cv.original_name }}</option>{% endfor %}</select></div>
+            <div class="mb-2"><label class="form-label">Cover letter (optional)</label><textarea name="cover_letter" rows="4" class="form-control"></textarea></div>
+            <button class="btn btn-primary w-100">Submit application</button>
+          </form>
+        {% endif %}
+      {% elif current_user.role == 'employer' and job.company.employer.user_id == current_user.id %}
+        <a class="btn btn-outline-primary w-100 mb-2" href="{{ url_for('job_edit', job_id=job.id) }}">Edit job</a>
+        <a class="btn btn-outline-secondary w-100" href="{{ url_for('applicants', job_id=job.id) }}">View applicants</a>
+      {% else %}
+        <p class="text-muted mb-0">Only job seekers can apply.</p>
+      {% endif %}
+    </div></div>
+  </div>
+</div></div>
+{% endblock %}

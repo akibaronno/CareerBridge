@@ -1,0 +1,46 @@
+{% extends 'base.html' %}{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="container my-4"><div class="row g-4">
+  <div class="col-lg-8"><div class="card shadow-sm"><div class="card-body p-4">
+    <h4 class="mb-3">My profile</h4>
+    <form method="post">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Full name</label><input name="name" class="form-control" value="{{ current_user.name }}" required></div>
+        <div class="col-md-6"><label class="form-label">Phone</label><input name="phone" class="form-control" value="{{ seeker.phone or '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Location</label><input name="location" class="form-control" value="{{ seeker.location or '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Years of experience</label><input type="number" min="0" name="experience_years" class="form-control" value="{{ seeker.experience_years or 0 }}"></div>
+        <div class="col-12"><label class="form-label">Headline</label><input name="headline" class="form-control" placeholder="e.g. Junior Python Developer" value="{{ seeker.headline or '' }}"></div>
+        <div class="col-12"><label class="form-label">Education</label><input name="education" class="form-control" value="{{ seeker.education or '' }}"></div>
+        <div class="col-12"><label class="form-label">About me</label><textarea name="bio" rows="3" class="form-control">{{ seeker.bio or '' }}</textarea></div>
+        <div class="col-12"><label class="form-label fw-semibold">Skills</label>
+          <div class="row row-cols-2 row-cols-md-3 g-1 border rounded p-2" style="max-height:220px;overflow:auto">
+            {% for s in all_skills %}<div class="col"><div class="form-check">
+              <input class="form-check-input" type="checkbox" name="skills" value="{{ s.id }}" id="s{{ s.id }}" {{ 'checked' if s in seeker.skills }}>
+              <label class="form-check-label" for="s{{ s.id }}">{{ s.name }}</label></div></div>{% endfor %}
+          </div>
+          <input name="new_skills" class="form-control mt-2" placeholder="Other skills (comma separated), e.g. Docker, Figma">
+        </div>
+      </div>
+      <button class="btn btn-primary mt-3">Save profile</button>
+    </form>
+  </div></div></div>
+
+  <div class="col-lg-4"><div class="card shadow-sm"><div class="card-body">
+    <h5>My CVs</h5>
+    <ul class="list-group list-group-flush mb-3">
+      {% for cv in seeker.cvs %}<li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+        <span class="small text-break">{{ cv.original_name }}<br><span class="text-muted">{{ cv.uploaded_at.strftime('%d %b %Y') }}</span></span>
+        <span class="text-nowrap">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('cv_download', cv_id=cv.id) }}"><i class="bi bi-download"></i></a>
+          <form class="d-inline" method="post" action="{{ url_for('cv_delete', cv_id=cv.id) }}" onsubmit="return confirm('Delete this CV?')">
+            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+        </span></li>
+      {% else %}<li class="list-group-item px-0 text-muted">No CV uploaded.</li>{% endfor %}
+    </ul>
+    <form method="post" action="{{ url_for('cv_upload') }}" enctype="multipart/form-data">
+      <input type="file" name="cv" class="form-control mb-2" accept=".pdf,.doc,.docx" required>
+      <button class="btn btn-outline-primary w-100">Upload CV (PDF/DOC/DOCX)</button>
+    </form>
+  </div></div></div>
+</div></div>
+{% endblock %}
